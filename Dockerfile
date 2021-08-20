@@ -27,6 +27,8 @@ RUN groupadd -r app \
     && mkdir /home/kunta \
     && chown kunta:app /home/kunta
 
+
+
 WORKDIR /home/kunta
 USER kunta:app
 COPY --chown=kunta:app .bashrc /home/kunta
@@ -35,16 +37,33 @@ RUN tar xvf emacs.d.tar
 ENV PATH="${PATH}:/home/kunta/node_modules/.bin"
 ENV TERM="xterm"
 
-# setting up the development environment
+# setting up the development environment for dev server, linting, analyzer
 RUN npm install --save-dev @web/dev-server \
     && npm install --save-dev @web/dev-server-legacy \
     && npm install --save-dev @web/dev-server-esbuild \
     && npm install --save-dev typescript \
     && npm install --save-dev eslint \
-    && npm install --save-dev lit \
     && npm install --save-dev lit-analyzer \
     && npm install --save-dev ts-lit-plugin
 
+
+# setting up the modules being used by the project
+RUN npm install --save firebase \
+    && npm install --save lit
+
+#RUN  npm install --save-dev @polymer/paper-icon-button \
+#  && npm install --save-dev @polymer/iron-icons.js \
+#  && npm install --save-dev @polymer/iron-icons \
+#  && npm install --save-dev @polymer/iron-pages \
+#  && npm install --save-dev @polymer/iron-selector \
+#  && npm install --save-dev @polymer/app-route \
+#  && npm install --save-dev @polymer/app-layout \
+#  && npm install --save     firebase \
+  
+COPY --chown=kunta:app entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+CMD ["default"]
 
 # sample project's source code
 #COPY --chown=kunta:app lit-element-starter-ts-master.zip /home/node
