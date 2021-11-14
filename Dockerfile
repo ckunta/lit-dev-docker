@@ -27,13 +27,16 @@ RUN groupadd -r app \
     && mkdir /home/kunta \
     && chown kunta:app /home/kunta
 
+RUN npm install -g firebase-tools
 
-
+RUN apt-get update \
+   && apt-get install --assume-yes default-jre\
+   && apt-get clean
+   
 WORKDIR /home/kunta
 USER kunta:app
 COPY --chown=kunta:app .bashrc /home/kunta
-COPY --chown=kunta:app emacs.d.tar /home/kunta/
-RUN tar xvf emacs.d.tar
+COPY --chown=kunta:app seed.tar /home/kunta/
 ENV PATH="${PATH}:/home/kunta/node_modules/.bin"
 ENV TERM="xterm"
 
@@ -51,6 +54,7 @@ RUN npm install --save-dev @web/dev-server \
 RUN npm install --save firebase \
     && npm install --save lit
 
+# installation to set up for using polymer, although maybe have been replaced with npm update inside entrypoint
 #RUN  npm install --save-dev @polymer/paper-icon-button \
 #  && npm install --save-dev @polymer/iron-icons.js \
 #  && npm install --save-dev @polymer/iron-icons \
@@ -58,7 +62,6 @@ RUN npm install --save firebase \
 #  && npm install --save-dev @polymer/iron-selector \
 #  && npm install --save-dev @polymer/app-route \
 #  && npm install --save-dev @polymer/app-layout \
-#  && npm install --save     firebase \
   
 COPY --chown=kunta:app entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
